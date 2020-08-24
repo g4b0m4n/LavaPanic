@@ -106,15 +106,12 @@ class Gout {
     }
 
     colision(object) {
-
-        if (object.w > this.x && object.h > this.y ||
-            object.y < this.h && object.x < this.w) {
-
-            //play sound
-            return true;
-        } else {
-            return false;
-        }
+        if (object.y + object.h > this.y &&
+            object.x + object.w > this.x &&
+            object.y < this.y + this.h &&
+            object.x < this.x + this.w){
+                return true;
+        } else return false;
     }
 }
 controller = {
@@ -124,9 +121,13 @@ controller = {
     up: false,
     /*
     touchListener: function(event) {
+    
         event.preventDefault();
         var touch_state = event.type == "touchstart"?true:false;
-        switch (event.touches[0].pageX < 250) {
+        
+        switch (event.clientX < 250 &&
+        event.touches[0].clientX > 0 && event.touches[0].clientY > 100 &&
+        event.touches[0].clientY < 400) {
             case true:
                 controller.left = touch_state;
                 break;
@@ -134,12 +135,17 @@ controller = {
                 controller.right = touch_state;
                 break;
         }
-        if (event.touches[0].pageY < 200) {controller.up = touch_state;}
+        if (event.touches[0].clientY < 100 && event.touches[0].clientY > 0 &&
+        event.touches[0].clientX > 0 && event.touches[0].clientX < 700) {
+            controller.up = touch_state;
+        }
     },*/
     mouseListener: function(event) {
         var touch_state = event.type == "mousedown"?true: false;
 
-        switch (event.clientX < 250) {
+        switch (event.clientX < 250 &&
+        event.clientX > 0 && event.clientY > 100 &&
+        event.clientY < 400) {
             case true:
                 controller.left = touch_state;
                 break;
@@ -147,7 +153,8 @@ controller = {
                 controller.right = touch_state;
                 break;
         }
-        if (event.clientY < 200) {
+        if (event.clientY < 100 && event.clientY > 0 &&
+        event.clientX > 0 && event.clientX < 700) {
             controller.up = touch_state;
         }
     },
@@ -171,15 +178,16 @@ controller = {
 
 loop = function() {
 
-    //background & hearts
+    //background
     for (let i = 0; i < width/100; i++) {
         context.drawImage(document.getElementById(magma_block), i*100, 0, 100, 100);
-        context.drawImage(document.getElementById(cora), 10+steve.health*(5*i), 10, 50, 50);
 
         for (let s = 1; s < height/100; s++) {
-            context.drawImage(document.getElementById(stone_block), i*100, s*100, 100, 100);
+        context.drawImage(document.getElementById(stone_block), i*100, s*100, 100, 100);
         }
     }
+    //hearts
+    for (let c=0; c<steve.health/2; c++) context.drawImage(document.getElementById(cora), 10+(50*c), 10, 50, 50);
     //score
     context.font = "30px Courier New bold";
     context.fillStyle = "#ffffff";
@@ -196,9 +204,9 @@ loop = function() {
     bucket.sety(steve.y);
 
     if (steve.last_left) {
-        context.drawImage(document.getElementById(bucket.tile), bucket.xl, bucket.y, 50, 50);
+        context.drawImage(document.getElementById(bucket.tile), bucket.getxl, bucket.gety, 50, 50);
     } else {
-        context.drawImage(document.getElementById(bucket.tile), bucket.xr, bucket.y, 50, 50);
+        context.drawImage(document.getElementById(bucket.tile), bucket.getxr, bucket.gety, 50, 50);
     }
 
     //steve
@@ -289,12 +297,11 @@ loop = function() {
         let current = steve2.x;
         setTimeout(() => {
             steve2.x = current;
-        }, 5000);
+        }, 5000);// TODO revisar 
         steve2.x_velocity *= -1;
         steve2.x += steve.x_velocity;
 
-        if (bucket.bucket_full)
-            bucket2.bucket_full =
+        bucket2.bucket_full =
         bucket2.bucket_full?true: false;
 
     }
@@ -334,25 +341,35 @@ loop = function() {
     context.fillStyle = "#FF4500";
     //splat draw
     if (Ngotas>1) {
-        setTimeout(context.fillRect(splat-50,
-            398, 100, 2), 2000);
-        if (steve.x > splat-50 &&
-        steve.x < splat+50)steve.health--;
+        context.fillRect(splat,
+            398, 100, 2);
+        if (steve.x < splat + 100 &&
+            steve.x + steve.w > splat &&
+            steve.y + steve.h > 398) {
+                steve.health--;
+                console.log("burn");
+        }
     }
-        if (gout) {
-            context.fillRect(gout.x, gout.y,
-            gout.w, gout.h); console.log("draw");
-            console.log(gout.x+"x"+gout.y);
+    if (gout) {
+        context.fillRect(gout.x, gout.y,
+            gout.w, gout.h);/*console.log("draw");
+            console.log(gout.x+"x"+gout.y);*/
             //colision //gout true
-            if (gout.colision(steve) || gout.colision(bucket)) {
-                bucket.health-=1;steve.health-=1;
-            } else if (gout.y > 400) {
-                splat = gout.x;
+        if (gout.colision(steve)) {
+                steve.health--;
+                gout = null;
+                console.log("steve colision")
+       } else if (gout.colision(bucket)) {
+                bucket.health--;
+                gout = null;
+                console.log("bucket colision")
+        } else if (gout.y > 400) {
+                splat = gout.x-50;
                 console.log("splat");
                 gout = null;
-            }
+        }
         //creation
-       } else {
+   } else {
             gout = new Gout(); console.log("gout");
         }
         //console.log(steve.health+"<br>"+bucket.health
