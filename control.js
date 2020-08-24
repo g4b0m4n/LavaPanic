@@ -119,15 +119,16 @@ controller = {
     left: false,
     right: false,
     up: false,
-    /*
+    
     touchListener: function(event) {
     
         event.preventDefault();
         var touch_state = event.type == "touchstart"?true:false;
         
-        switch (event.clientX < 250 &&
-        event.touches[0].clientX > 0 && event.touches[0].clientY > 100 &&
-        event.touches[0].clientY < 400) {
+        switch (event.touches[0].clientX <= 250 &&
+        event.touches[0].clientX >= 0 &&
+        event.touches[0].clientY >= 100 &&
+        event.touches[0].clientY <= 400) {
             case true:
                 controller.left = touch_state;
                 break;
@@ -135,11 +136,11 @@ controller = {
                 controller.right = touch_state;
                 break;
         }
-        if (event.touches[0].clientY < 100 && event.touches[0].clientY > 0 &&
-        event.touches[0].clientX > 0 && event.touches[0].clientX < 700) {
+        if (event.touches[0].clientY <= 100 && event.touches[0].clientY >= 0 &&
+        event.touches[0].clientX >= 0 && event.touches[0].clientX <= 500) {
             controller.up = touch_state;
         }
-    },*/
+    },
     mouseListener: function(event) {
         var touch_state = event.type == "mousedown"?true: false;
 
@@ -204,9 +205,9 @@ loop = function() {
     bucket.sety(steve.y);
 
     if (steve.last_left) {
-        context.drawImage(document.getElementById(bucket.tile), bucket.getxl, bucket.gety, 50, 50);
+        context.drawImage(document.getElementById(bucket.tile), bucket.getxl(), bucket.gety(), 50, 50);
     } else {
-        context.drawImage(document.getElementById(bucket.tile), bucket.getxr, bucket.gety, 50, 50);
+        context.drawImage(document.getElementById(bucket.tile), bucket.getxr(), bucket.gety(), 50, 50);
     }
 
     //steve
@@ -282,7 +283,7 @@ loop = function() {
     if (steve.x < 0) {
 
         steve.x = 0;
-        bucket_full = false;
+        bucket2.bucket_full = false;
 
     }
 
@@ -292,9 +293,9 @@ loop = function() {
         steve.x = 400;
         bucket.bucket_full = false;
 
-    } else if (steve2.x > 400 || steve2.x < 0) {
+    } else if (steve2.x >= 400 || steve2.x < 0) {
 
-        let current = steve2.x;
+        let current = steve2.x;//store steve position 
         setTimeout(() => {
             steve2.x = current;
         }, 5000);// TODO revisar 
@@ -323,9 +324,9 @@ loop = function() {
     bucket2.sety(steve2.y);
 
     if (steve2.last_left) {
-        context.drawImage(document.getElementById(bucket2.tile), bucket2.getxl, bucket2.gety, 50, 50);
+        context.drawImage(document.getElementById(bucket2.tile), bucket2.getxl(), bucket2.gety(), 50, 50);
     } else {
-        context.drawImage(document.getElementById(bucket2.tile), bucket2.getxr, bucket2.gety, 50, 50);
+        context.drawImage(document.getElementById(bucket2.tile), bucket2.getxr(), bucket2.gety(), 50, 50);
     }
 
     //steve2
